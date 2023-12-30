@@ -25,13 +25,12 @@ def run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            print(i)
-            if i % 1000 == 0:
-                # store train epoch loss
-                loss_history.append([epoch, loss.item()])
-                # evaluate on test dataset
-                
-                print(f'Epoch: {epoch}, Iteration: {i}, Loss: {loss.item()}')
+        if i % 1000 == 0:
+            # store train epoch loss
+            loss_history.append([epoch, loss.item()])
+            # evaluate on test dataset
+            
+            print(f'Epoch: {epoch}, Loss: {loss.item()}')
     
     # evaluate on test loss on test dataset
     model.eval()

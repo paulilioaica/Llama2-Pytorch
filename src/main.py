@@ -1,5 +1,5 @@
 from datasets import load_dataset
-from small_tokenizer import tokenize_function, tokenizer
+from src.pretrained_tokenizer import tokenize_function, tokenizer
 from transformer import Transformer
 from dataset import TextDataset
 from torch.utils.data import DataLoader
