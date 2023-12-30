@@ -1,5 +1,5 @@
 from datasets import load_dataset
-from src.pretrained_tokenizer import tokenize_function, tokenizer
+from pretrained_tokenizer import tokenize_function, tokenizer
 from transformer import Transformer
 from dataset import TextDataset
 from torch.utils.data import DataLoader
@@ -46,4 +46,4 @@ def run(num_layers, n_heads, seq_len, num_hidden, num_epochs, batch_size, lr, de
     return results
 
 if __name__ == "__main__":
-    run(args.num_layers, args.n_heads, args.seq_len, args.num_hidden, args.num_epochs, args.batch_size, args.lr, args.device, args.embedding_dim, args.dataset)
+    run(args.num_layers, args.n_heads, args.seq_len, args.num_hidden, args.num_epochs, args.batch_size, args.lr, args.device, args.embedding_dim, args.dataset_name)

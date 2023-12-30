@@ -6,7 +6,7 @@ This is a PyTorch project that implements a plain transformer architecture for s
 
 ## Transformer Architecture
 
-![Transformer Architecture Diagram](https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1-1090x1536.png)
+![Transformer Architecture Diagram](https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1-500x1536.png)
 
  The transformer architecture consists of the following components:
 
@@ -58,6 +58,16 @@ To get started with Transformer Plain, follow these steps:
 
 4. Evaluate the model: Use the trained model to make predictions on your test dataset and evaluate its performance.
 
+## Results after 10 epochs
+```
+Epoch: 0, Loss: 10.326
+Epoch: 1, Loss: 9.256
+Epoch: 2, Loss: 8.972
+...
+Epoch: 9, Loss: 7.986
+
+Test loss: 7.949
+```
 
 ## License
 
