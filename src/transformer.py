@@ -22,7 +22,8 @@ class MultiHeadAttention(nn.Module):
         self.mask = self.get_mask(self.seq_len)
     
     def get_mask(self, size):
-        mask = torch.triu(torch.ones(size, size), diagonal=1)  
+        device = next(self.parameters()).device
+        mask = torch.triu(torch.ones(size, size, device=device), diagonal=1)  
         return mask.unsqueeze(0).unsqueeze(0)  
 
     def forward(self, query, key, values, dropout=0.1, mask=None):
@@ -124,8 +125,7 @@ class TransformerDecoderLayer(nn.Module):
     
     def forward(self, output_with_pos, encoder_output):
         # masked attention
-        x = self.multihead_attention_masked(output_with_pos, output_with_pos, output_with_pos, mask=True)
-        
+        x = self.multihead_attention_masked(output_with_pos, output_with_pos, output_with_pos)
         #add and norm
         x = x + output_with_pos
         x = self.layer_norm1(x)
@@ -156,7 +156,8 @@ class PositionalEncoding(nn.Module):
         self.pe = self.pe.unsqueeze(0).transpose(0, 1)
 
     def forward(self, x):  
-        x = x + self.pe[:x.size(0), :].cuda()
+        self.pe = self.pe.to(x.device)  
+        x = x + self.pe[:x.size(0), :]
         return x  
 
 class Transformer(nn.Module):

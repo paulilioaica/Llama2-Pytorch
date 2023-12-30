@@ -6,7 +6,7 @@ class TextDataset(Dataset):
         self.encodings = encodings
 
     def __getitem__(self, idx):  
-        return torch.tensor(self.encodings['input_ids'][idx]), torch.tensor(self.encodings['input_ids'][idx][1]) 
+        return torch.tensor(self.encodings['input_ids'][idx][:-1]), torch.tensor(self.encodings['input_ids'][idx][1:]) 
 
     def __len__(self):
         return len(self.encodings)
