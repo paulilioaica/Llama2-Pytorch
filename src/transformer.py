@@ -4,7 +4,23 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
-# Vanilla Transformer
+# Positional encoding definition
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_len) -> None:
+        super().__init__()
+        self.pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        self.pe[:, 0::2] = torch.sin(position * div_term)
+        self.pe[:, 1::2] = torch.cos(position * div_term)
+        self.pe = self.pe.unsqueeze(0).transpose(0, 1)
+
+    def forward(self, x):  
+        self.pe = self.pe.to(x.device)  
+        x = x + self.pe[:x.size(0), :]
+        return x  
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, num_hidden, num_heads, seq_len, d_k) -> None:
         super().__init__()
@@ -53,7 +69,8 @@ class MultiHeadAttention(nn.Module):
           
         return output  
 
-
+# Feed forward definition
+    
 class FeedForward(nn.Module):
     def __init__(self, num_hidden, num_ffn_hidden) -> None:
         super().__init__()
@@ -66,6 +83,8 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.W_2(F.relu(self.W_1(x)))
 
+
+# Transformer definition
 
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, num_hidden, num_heads, seq_len) -> None:
@@ -125,7 +144,7 @@ class TransformerDecoderLayer(nn.Module):
     
     def forward(self, output_with_pos, encoder_output):
         # masked attention
-        x = self.multihead_attention_masked(output_with_pos, output_with_pos, output_with_pos)
+        x = self.multihead_attention_masked(output_with_pos, output_with_pos, output_with_pos, mask=True)
         #add and norm
         x = x + output_with_pos
         x = self.layer_norm1(x)
@@ -143,22 +162,6 @@ class TransformerDecoderLayer(nn.Module):
         #add and norm
         x = x + x_forward
         return x
-
-
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_len) -> None:
-        super().__init__()
-        self.pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        self.pe[:, 0::2] = torch.sin(position * div_term)
-        self.pe[:, 1::2] = torch.cos(position * div_term)
-        self.pe = self.pe.unsqueeze(0).transpose(0, 1)
-
-    def forward(self, x):  
-        self.pe = self.pe.to(x.device)  
-        x = x + self.pe[:x.size(0), :]
-        return x  
 
 class Transformer(nn.Module):
     def __init__(self, encoder_layers_num, decoder_layers_num, num_hidden, num_heads, seq_len, vocab_size, embedding_dim) -> None:
