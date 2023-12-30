@@ -58,6 +58,11 @@ To get started with Transformer Plain, follow these steps:
 
 4. Evaluate the model: Use the trained model to make predictions on your test dataset and evaluate its performance.
 
+## Example run
+```
+python main.py  --num_layers 2 --n_heads 8 --seq_len 128 --num_hidden 128 --num_epochs 10 --batch_size 32 --lr 0.001 --device cpu --embedding_dim 128 --dataset_name ag_news
+```
+
 ## Results after 10 epochs
 ```
 Epoch: 0, Loss: 10.326
