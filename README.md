@@ -1,9 +1,28 @@
-﻿# Transformer Plain
-
+﻿# Pytorch Transformer
 🤖🔮🔥
 
 ## Overview
 This is a PyTorch project that implements a plain transformer architecture for self-supervised prediction, which is at the core of LLMs. This project aims to provide a simple and efficient implementation of the transformer model, allowing users to train their own models for various tasks.
+
+## Transformer Architecture
+
+![Transformer Architecture Diagram](https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1-1090x1536.png)
+
+ The transformer architecture consists of the following components:
+
+1. **Encoder**: The encoder takes in the input sequence and processes it through a stack of encoder layers. Each encoder layer consists of a multi-head self-attention mechanism and a feed-forward neural network.
+
+2. **Decoder**: The decoder takes in the output of the encoder and generates the final output sequence. It also consists of a stack of decoder layers. Each decoder layer has a multi-head self-attention mechanism, a multi-head attention mechanism over the encoder outputs, and a feed-forward neural network.
+
+3. **Attention Mechanism**: The attention mechanism allows the model to focus on different parts of the input sequence during the encoding and decoding process. It computes a weighted sum of the input sequence based on the relevance of each element to the current position.
+
+4. **Feed-Forward Neural Network**: The feed-forward neural network is a fully connected layer that applies non-linear transformations to the input sequence.
+
+
+
+For more details on the transformer architecture, refer to the original paper: [Attention Is All You Need](https://arxiv.org/abs/1706.03762).
+
+
 
 ## Features
 
