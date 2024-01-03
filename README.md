@@ -39,7 +39,7 @@ To get started with Transformer Plain, follow these steps:
 1. Clone the repository:
 
     ```shell
-    git clone https://github.com/paulilioaica/Vanilla-Pytorch-Transformer
+    git clone https://github.com/paulilioaica/Pytorch-Transformer
     ```
 
 2. Install the required dependencies:
