@@ -40,7 +40,7 @@ To get started with Transformer Plain, follow these steps:
 
     ```shell
     git clone https://github.com/paulilioaica/Pytorch-Transformer
-    cd src/
+    cd Pytorch-Transformer/src/
 
     ```
 
