@@ -161,6 +161,7 @@ class TransformerDecoderLayer(nn.Module):
 
         #add and norm
         x = x + x_forward
+        x = self.layer_norm3(x)
         return x
 
 class Transformer(nn.Module):
