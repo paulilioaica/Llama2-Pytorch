@@ -1,5 +1,5 @@
 from datasets import load_dataset
-from pretrained_tokenizer import tokenize_function, tokenizer
+from pretrained_tokenizer import tokenizer
 from transformer import Transformer
 from dataset import TextDataset
 from torch.utils.data import DataLoader
@@ -23,15 +23,17 @@ args = parser.parse_args()
 
 def run(num_layers, n_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, embedding_dim, dataset_name):
     # add split="train[10%:20%]" to load_dataset to get a smaller dataset
-    dataset_train = load_dataset(dataset_name, split='train[:20%]')
-    dataset_test = load_dataset(dataset_name, split='test[:20%]') 
+    dataset_train = load_dataset(dataset_name, split='train[:5%]')
+    dataset_test = load_dataset(dataset_name, split='test[:5%]') 
 
     train_dataset = dataset_train
     test_dataset = dataset_test
 
 
-    tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
-    tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
+    tokenized_train_dataset = train_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
+                                                batched=True)
+    tokenized_test_dataset = test_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
+                                              batched=True)
 
 
     train_dataset = TextDataset(tokenized_train_dataset)
