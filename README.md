@@ -1,26 +1,26 @@
-﻿# Pytorch Transformer
-🤖🔮🔥
+﻿# Pytorch LLama2
 
 ## Overview
-This is a PyTorch project that implements a plain transformer architecture for self-supervised prediction, which is at the core of LLMs. This project aims to provide a simple and efficient implementation of the transformer model, allowing users to train their own models for various tasks.
+This projects implements [LLama2](https://arxiv.org/abs/2307.09288) transformer architecture for self-supervised prediction, which is at the core of LLMs. This project aims to provide a simple and efficient implementation of popular Llama model which is based on the original [transformer architecture](https://arxiv.org/abs/1706.03762) which is highly flexible and powerful, but implements few upgrades such as: [rotary embeddings](https://arxiv.org/pdf/2104.09864.pdf), [grouped query attention for a tradeoff between MHA and MQA](https://arxiv.org/abs/2305.13245v3), [SwiGLU](https://arxiv.org/abs/2002.05202v1), [RMS Norm](https://arxiv.org/abs/1910.07467) and [KV Caching](https://arxiv.org/pdf/2211.05102.pdf).
 
-## Transformer Architecture
+## Llama2 Architecture
 
-![Transformer Architecture Diagram](https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1-500x1536.png)
+![LLaMa2 ](https://images.datacamp.com/image/upload/v1700044736/image9_02d9fcb498.png)
 
- The transformer architecture consists of the following components:
-
-1. **Encoder**: The encoder takes in the input sequence and processes it through a stack of encoder layers. Each encoder layer consists of a multi-head self-attention mechanism and a feed-forward neural network.
-
-2. **Decoder**: The decoder takes in the output of the encoder and generates the final output sequence. It also consists of a stack of decoder layers. Each decoder layer has a multi-head self-attention mechanism, a multi-head attention mechanism over the encoder outputs, and a feed-forward neural network.
-
-3. **Attention Mechanism**: The attention mechanism allows the model to focus on different parts of the input sequence during the encoding and decoding process. It computes a weighted sum of the input sequence based on the relevance of each element to the current position.
-
-4. **Feed-Forward Neural Network**: The feed-forward neural network is a fully connected layer that applies non-linear transformations to the input sequence.
+ The Llama architecture consists of the Transformer Decoder architecture, coupled with few upgrades such as :
+ * Rotary Embeddings
+ * SwiGLU
+ * Grouped Query Attention
+ * KV Caching
 
 
+**Decoder**: The decoder takes in the output of the encoder and generates the final output sequence. It also consists of a stack of decoder layers. Each decoder layer has a grouped query multi-head self-attention mechanism, feed-forward neural network.
+It benefits from RoPe encodings, KV caching and everything mentioned above.
 
-For more details on the transformer architecture, refer to the original paper: [Attention Is All You Need](https://arxiv.org/abs/1706.03762).
+ **Grouped Query Attention**: The grouped query attention mechanism is a modification to the traditional attention mechanism in the transformer architecture. It allows the model to attend to different groups of queries within the input sequence, enabling a tradeoff between multi-head attention and multi-query attention. This helps improve the model's ability to capture complex dependencies and relationships within the data.
+
+
+For more details on the transformer architecture, refer to the original paper: [Llama](https://arxiv.org/abs/2307.09288).
 
 
 
@@ -28,7 +28,6 @@ For more details on the transformer architecture, refer to the original paper: [
 
 ✨ Easy-to-use: The project provides a straightforward setup and training loop for self-supervised prediction.
 
-🧠 Transformer Architecture: The project implements the popular transformer architecture, which has shown great success in various natural language processing and computer vision tasks.
 
 🔀 Self-Supervised Prediction: The training loop is designed to support self-supervised prediction, enabling the model to learn from unlabeled data.
 
@@ -39,8 +38,8 @@ To get started with Transformer Plain, follow these steps:
 1. Clone the repository:
 
     ```shell
-    git clone https://github.com/paulilioaica/Pytorch-Transformer
-    cd Pytorch-Transformer/src/
+    git clone https://github.com/paulilioaica/Pytorch-Llama2
+    cd Pytorch-Llama2/src/
 
     ```
 
@@ -63,17 +62,6 @@ To get started with Transformer Plain, follow these steps:
 ## Example run
 ```
 python main.py  --num_layers 2 --n_heads 8 --seq_len 128 --num_hidden 128 --num_epochs 10 --batch_size 32 --lr 0.001 --device cpu --embedding_dim 128 --dataset_name ag_news
-```
-
-## Results after 10 epochs
-```
-Epoch: 0, Loss: 10.326
-Epoch: 1, Loss: 9.256
-Epoch: 2, Loss: 8.972
-...
-Epoch: 9, Loss: 7.986
-
-Test loss: 7.949
 ```
 
 ## License
