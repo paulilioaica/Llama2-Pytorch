@@ -5,11 +5,9 @@ import torch
 import math
 
 class KVCacheMemory():
-    def __init__(self, batch_size, num_heads, seq_len, num_hidden, device):
-        self.batch_size = batch_size
+    def __init__(self, num_heads, seq_len, num_hidden):
         self.num_heads = num_heads
         self.seq_len = seq_len
-        self.device = device
         self.num_hidden = num_hidden
 
     def init_cache(self, batch_size):
@@ -62,22 +60,19 @@ class GroupedQueryAttention(nn.Module):
         key = self.W_k(key).view(-1, self.num_kv_heads, self.seq_len, self.num_hidden)
         values = self.W_v(values).view(-1, self.num_kv_heads, self.seq_len, self.num_hidden)
 
-
         # shape [batch, seq_len, kv_heads, hidden]
-        rope_query = self.rotary_encodings(query) 
-        rope_key = self.rotary_encodings(key)
+        rope_key = self.rotary_encodings(key) 
+        rope_values = self.rotary_encodings(values)
 
-        rope_query = rope_query.repeat((1, 1, self.num_kv_heads * self.num_rep, 1))
-        rope_key = rope_key.repeat((1, 1, self.num_kv_heads * self.num_rep, 1))
+        rope_key = rope_key.repeat((1, self.num_rep, 1, 1))
+        rope_values = rope_values.repeat((1, self.num_rep, 1, 1))
 
         # Q * K_T
-        QK_T = torch.matmul(query,  key.mT)
+        QK_T = torch.matmul(query,  rope_key.mT)
 
         # QK_T / sqrt(dk)
         QK_T = QK_T / math.sqrt(self.d_k)
 
-        if mask:
-            QK_T = QK_T.masked_fill(self.mask == 1, float('-inf'))
 
         # softmax(QK_T / sqrt(d_k)
         attention_scores = self.softmax(QK_T)
@@ -85,7 +80,7 @@ class GroupedQueryAttention(nn.Module):
         #dropout
         if self.train():
             attention_scores = self.dropout(attention_scores)
-        output = torch.matmul(attention_scores, values)  
+        output = torch.matmul(attention_scores, rope_values)  
         # Reshape and apply output linear layer  
         output = output.transpose(1, 2).contiguous().view(-1, self.seq_len, self.num_heads * self.num_hidden)  
         output = self.W_o(output)  

@@ -13,12 +13,15 @@ class FeedForward(nn.Module):
         super().__init__()
         self.num_hidden = num_hidden
         self.num_ffn_hidden = num_ffn_hidden
-        self.swiglu = SwiGLU()
+        self.swiglu = SwiGLU(num_ffn_hidden)
         self.W_1 = nn.Linear(num_hidden, num_ffn_hidden)
         self.W_2 = nn.Linear(num_ffn_hidden, num_hidden)
 
     def forward(self, x):
-        return self.W_2(self.swiglu(self.W_1(x)))
+        x = self.W_1(x)
+        x = self.swiglu(x)
+        x = self.W_2(x)
+        return x
 
 
 # Transformer definition
@@ -29,17 +32,16 @@ class TransformerDecoder(nn.Module):
         self.num_layers = num_layers
         self.decoders = nn.ModuleList([TransformerDecoderLayer(num_hidden, n_heads, num_kv_heads, seq_len) for i in range(num_layers)])
 
-    def forward(self, x, encoder_output):
+    def forward(self, x):
         for layer in self.decoders:
-            x = layer(x, encoder_output)
+            x = layer(x)
         return x
 
 
 class TransformerDecoderLayer(nn.Module):
     def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len ) -> None:
         super().__init__()
-        self.multihead_attention_masked = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
-        self.multihead_attention = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
+        self.grouped_query_attention = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
         
         self.feed_forward = FeedForward(num_hidden=num_hidden, num_ffn_hidden=2*num_hidden)
         self.rms_norm1 = RMSNorm(num_hidden)
@@ -47,8 +49,10 @@ class TransformerDecoderLayer(nn.Module):
     
     def forward(self, output_with_pos):
         x = self.rms_norm1(output_with_pos)
-        # masked attention
-        x = self.multihead_attention_masked(x, x, x)
+
+        # attention
+        x = self.grouped_query_attention(x, x, x)
+
         #add and norm
         x_after_attention = x + output_with_pos
         
@@ -62,13 +66,13 @@ class TransformerDecoderLayer(nn.Module):
         return x
 
 class Llama2(nn.Module):
-    def __init__(self, decoder_layers_num, num_hidden, num_heads, num_kv_heads, seq_len, vocab_size, embedding_dim) -> None:
+    def __init__(self, decoder_layers_num, num_hidden, num_heads, num_kv_heads, seq_len, vocab_size) -> None:
         super().__init__()
         self.decoder = TransformerDecoder(decoder_layers_num, num_heads, num_kv_heads, seq_len, num_hidden)
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.linear = nn.Linear(embedding_dim, vocab_size)
+        self.embedding = nn.Embedding(vocab_size, num_hidden)
+        self.linear = nn.Linear(num_hidden, vocab_size)
         self.softmax = nn.Softmax(dim=-1)
-        self.rms_norm = RMSNorm(embedding_dim)
+        self.rms_norm = RMSNorm(num_hidden)
 
     def forward(self, x):
         #embeddings

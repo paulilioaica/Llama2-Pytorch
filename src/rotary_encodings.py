@@ -9,15 +9,16 @@ class RotaryEncodings(nn.Module):
         self.num_hidden = num_hidden
         self.sequence_length = seq_len
 
-        theta = 1. / (self.base ** (torch.arange(0, self.num_hidden, 2).float() / self.num_hidden))  
+        theta = 1. / (self.base ** (torch.arange(0, self.num_hidden).float() / self.num_hidden))  
         index = torch.arange(seq_len).float()
-        phase = theta * index
+
+        phase = index.unsqueeze(-1) * theta
+        
         self.sin = phase.sin()[:, None, None, :]
         self.cos = phase.cos()[:, None, None, :]
 
     def neg(self, x):
-        num_hidden_half = self.num_hidden // 2
-        return torch.cat(-x[:, :, :, num_hidden_half:], x[:, :, :, :num_hidden_half])
+        return torch.cat([-x[:, :, :, self.num_hidden//2:], x[:, :, :, :self.num_hidden//2]], dim=-1)
     
     def forward(self, x):
         neg_x = self.neg(x)
