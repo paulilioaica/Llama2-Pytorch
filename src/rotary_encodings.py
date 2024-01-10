@@ -7,8 +7,9 @@ class RotaryEncodings(nn.Module):
         super().__init__()      
         self.base = base
         self.num_hidden = num_hidden
+        self.sequence_length = seq_len
 
-        theta = 1. / (self.base ** (torch.arange(0, self.d, 2).float() / self.d))  
+        theta = 1. / (self.base ** (torch.arange(0, self.num_hidden, 2).float() / self.num_hidden))  
         index = torch.arange(seq_len).float()
         phase = theta * index
         self.sin = phase.sin()[:, None, None, :]
