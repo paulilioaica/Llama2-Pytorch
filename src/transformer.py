@@ -24,10 +24,10 @@ class FeedForward(nn.Module):
 # Transformer definition
 
 class TransformerDecoder(nn.Module):
-    def __init__(self, num_layers, n_heads, seq_len, num_hidden) -> None:
+    def __init__(self, num_layers, n_heads, num_kv_heads, seq_len, num_hidden) -> None:
         super().__init__()
         self.num_layers = num_layers
-        self.decoders = nn.ModuleList([TransformerDecoderLayer(num_hidden, n_heads, seq_len) for i in range(num_layers)])
+        self.decoders = nn.ModuleList([TransformerDecoderLayer(num_hidden, n_heads, num_kv_heads, seq_len) for i in range(num_layers)])
 
     def forward(self, x, encoder_output):
         for layer in self.decoders:
@@ -36,7 +36,7 @@ class TransformerDecoder(nn.Module):
 
 
 class TransformerDecoderLayer(nn.Module):
-    def __init__(self, num_hidden, num_heads, seq_len, num_kv_heads) -> None:
+    def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len ) -> None:
         super().__init__()
         self.multihead_attention_masked = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
         self.multihead_attention = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
@@ -45,7 +45,7 @@ class TransformerDecoderLayer(nn.Module):
         self.rms_norm1 = RMSNorm(num_hidden)
         self.rms_norm2 = RMSNorm(num_hidden)
     
-    def forward(self, output_with_pos, encoder_output):
+    def forward(self, output_with_pos):
         x = self.rms_norm1(output_with_pos)
         # masked attention
         x = self.multihead_attention_masked(x, x, x)
@@ -62,9 +62,9 @@ class TransformerDecoderLayer(nn.Module):
         return x
 
 class Llama2(nn.Module):
-    def __init__(self, decoder_layers_num, num_hidden, num_heads, seq_len, vocab_size, embedding_dim) -> None:
+    def __init__(self, decoder_layers_num, num_hidden, num_heads, num_kv_heads, seq_len, vocab_size, embedding_dim) -> None:
         super().__init__()
-        self.decoder = TransformerDecoder(decoder_layers_num, num_heads, seq_len, num_hidden)
+        self.decoder = TransformerDecoder(decoder_layers_num, num_heads, num_kv_heads, seq_len, num_hidden)
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.linear = nn.Linear(embedding_dim, vocab_size)
         self.softmax = nn.Softmax(dim=-1)

@@ -9,8 +9,13 @@ class KVCacheMemory():
         self.batch_size = batch_size
         self.num_heads = num_heads
         self.seq_len = seq_len
-        self.k_cached = torch.zeros((batch_size, seq_len, num_heads, num_hidden )).to(device)
-        self.q_cached = torch.zeros((batch_size, seq_len, num_heads, num_hidden)).to(device)
+        self.device = device
+        self.num_hidden = num_hidden
+
+    def init_cache(self, batch_size):
+        self.batch_size = batch_size
+        self.k_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden )).to(device)
+        self.q_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden)).to(device)
 
     def update(self, k, q, curr_pos):
         self.k_cached[:self.batch_size, curr_pos : curr_pos + k.shape[1]] = k
@@ -22,7 +27,7 @@ class KVCacheMemory():
         
 
 class GroupedQueryAttention(nn.Module):
-    def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len, d_k, batch_size) -> None:
+    def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len, d_k) -> None:
         super().__init__()
         self.num_hidden = num_hidden
         self.num_heads = num_heads
@@ -36,7 +41,7 @@ class GroupedQueryAttention(nn.Module):
         self.d_k = d_k
         
         #caching KV for inference time
-        self.cache = KVCacheMemory(batch_size, num_heads, seq_len, num_hidden)
+        self.cache = KVCacheMemory(num_heads, seq_len, num_hidden)
 
         self.W_q = nn.Linear(num_hidden, num_heads * num_hidden)
         self.W_k = nn.Linear(num_hidden, num_kv_heads * num_hidden)
