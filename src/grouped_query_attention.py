@@ -34,7 +34,7 @@ class GroupedQueryAttention(nn.Module):
         self.num_kv_heads = num_kv_heads
         self.num_rep = self.num_heads // self.num_kv_heads
 
-        self.rotary_encodings = RotaryEncodings(seq_len, self.device, num_hidden)
+        self.rotary_encodings = RotaryEncodings(seq_len, num_hidden)
 
 
         self.seq_len = seq_len

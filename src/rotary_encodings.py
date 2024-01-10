@@ -3,13 +3,13 @@ import torch.nn as nn
 # Positional encoding definition
 
 class RotaryEncodings(nn.Module):
-    def __init__(self, seq_len, device, num_hidden, dropout=0.1, base=10_000,):
+    def __init__(self, seq_len, num_hidden, dropout=0.1, base=10_000,):
         super().__init__()      
         self.base = base
         self.num_hidden = num_hidden
 
-        theta = 1. / (self.base ** (torch.arange(0, self.d, 2).float() / self.d)).to(device)  
-        index = torch.arange(seq_len).float().to(device)
+        theta = 1. / (self.base ** (torch.arange(0, self.d, 2).float() / self.d))  
+        index = torch.arange(seq_len).float()
         phase = theta * index
         self.sin = phase.sin()[:, None, None, :]
         self.cos = phase.cos()[:, None, None, :]
