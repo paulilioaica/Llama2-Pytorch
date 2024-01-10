@@ -14,8 +14,8 @@ class KVCacheMemory():
 
     def init_cache(self, batch_size):
         self.batch_size = batch_size
-        self.k_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden )).to(device)
-        self.q_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden)).to(device)
+        self.k_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden )).to(self.device)
+        self.q_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden)).to(self.device)
 
     def update(self, k, q, curr_pos):
         self.k_cached[:self.batch_size, curr_pos : curr_pos + k.shape[1]] = k
