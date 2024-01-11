@@ -79,7 +79,7 @@ class Llama2(nn.Module):
         x = self.embedding(x)
 
         #forward pass
-        output = self.decoder(x)
+        output = self.model(x)
         # rms norm
         output = self.rms_norm(output)
 
