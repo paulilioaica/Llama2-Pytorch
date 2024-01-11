@@ -22,5 +22,5 @@ class RotaryEncodings(nn.Module):
     
     def forward(self, x):
         neg_x = self.neg(x)
-        x = x * self.cos[:x.shape[0]] + neg_x * self.sin[:neg_x.shape[0]]
+        x = x * self.cos[:x.shape[0]].to(x.device) + neg_x * self.sin[:neg_x.shape[0]].to(x.device)
         return x

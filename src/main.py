@@ -1,6 +1,6 @@
 from datasets import load_dataset
 from tokenizer import tokenizer
-from transformer import Llama2
+from llama import Llama2
 from dataset import TextDataset
 from torch.utils.data import DataLoader
 from trainer import run_trainer
@@ -16,16 +16,15 @@ parser.add_argument("--num_epochs", type=int, default=10)
 parser.add_argument("--batch_size", type=int, default=32)   
 parser.add_argument("--lr", type=float, default=0.001)
 parser.add_argument("--device", type=str, default="cpu")
-parser.add_argument("--embedding_dim", type=int, default=128)
 parser.add_argument("--dataset_name", type=str, default="ag_news")
 args = parser.parse_args()
 
 
 
-def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, embedding_dim, dataset_name):
+def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, dataset_name):
     # add split="train[10%:20%]" to load_dataset to get a smaller dataset
-    dataset_train = load_dataset(dataset_name, split='train[:5%]')
-    dataset_test = load_dataset(dataset_name, split='test[:5%]') 
+    dataset_train = load_dataset(dataset_name, split='train[:1%]')
+    dataset_test = load_dataset(dataset_name, split='test[:1%]') 
 
     train_dataset = dataset_train
     test_dataset = dataset_test
@@ -49,4 +48,4 @@ def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batc
     return results
 
 if __name__ == "__main__":
-    run(args.num_layers, args.n_heads, args.seq_len, args.num_hidden, args.num_epochs, args.batch_size, args.lr, args.device, args.embedding_dim, args.dataset_name)
+    run(args.num_layers, args.n_heads, args.num_kv_heads, args.seq_len, args.num_hidden, args.num_epochs, args.batch_size, args.lr, args.device, args.dataset_name)

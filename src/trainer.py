@@ -1,6 +1,7 @@
 import torch.nn as nn
 from torch.optim import Adam
 import torch
+from tqdm import tqdm 
 
 def run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr):
     criterion = nn.CrossEntropyLoss()
@@ -10,23 +11,24 @@ def run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr
     model = model.to(device)
 
     for epoch in range(num_epochs):
-        for i, (input_tensor, target_tensor) in enumerate(train_dataloader):
+        for i, (input_tensor, target_tensor) in tqdm(enumerate(train_dataloader), total=len(train_dataloader)):
+            optimizer.zero_grad()
+
             input_tensor = input_tensor.to(device)
             target_tensor = target_tensor.to(device)
             # Forward pass
-            output = model(input_tensor, target_tensor)
+            output = model(input_tensor)
 
             # Compute the loss
             loss = criterion(output.view(-1, output.shape[-1]), target_tensor.view(-1))
 
             # Backward pass and optimization
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if i % 10 == 0:
+            if i % 10 == 0:
             # store train epoch loss
-            loss_history.append([epoch, loss.item()])
-            print(f'Epoch: {epoch}, Loss: {loss.item()}')
+                loss_history.append([epoch, loss.item()])
+                print(f'Epoch: {epoch}, Loss: {loss.item()}')
     
     # evaluate on test loss on test dataset
     model.eval()
