@@ -26,11 +26,11 @@ class FeedForward(nn.Module):
 
 # Transformer definition
 
-class TransformerDecoder(nn.Module):
+class LlamaModel(nn.Module):
     def __init__(self, num_layers, n_heads, num_kv_heads, seq_len, num_hidden) -> None:
         super().__init__()
         self.num_layers = num_layers
-        self.decoders = nn.ModuleList([TransformerDecoderLayer(num_hidden, n_heads, num_kv_heads, seq_len) for i in range(num_layers)])
+        self.decoders = nn.ModuleList([LlamaLayer(num_hidden, n_heads, num_kv_heads, seq_len) for i in range(num_layers)])
 
     def forward(self, x):
         for layer in self.decoders:
@@ -38,7 +38,7 @@ class TransformerDecoder(nn.Module):
         return x
 
 
-class TransformerDecoderLayer(nn.Module):
+class LlamaLayer(nn.Module):
     def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len ) -> None:
         super().__init__()
         self.grouped_query_attention = GroupedQueryAttention(num_hidden=num_hidden, num_heads=num_heads, num_kv_heads=num_kv_heads, seq_len=seq_len, d_k=1)
@@ -68,7 +68,7 @@ class TransformerDecoderLayer(nn.Module):
 class Llama2(nn.Module):
     def __init__(self, decoder_layers_num, num_hidden, num_heads, num_kv_heads, seq_len, vocab_size) -> None:
         super().__init__()
-        self.decoder = TransformerDecoder(decoder_layers_num, num_heads, num_kv_heads, seq_len, num_hidden)
+        self.model = LlamaModel(decoder_layers_num, num_heads, num_kv_heads, seq_len, num_hidden)
         self.embedding = nn.Embedding(vocab_size, num_hidden)
         self.linear = nn.Linear(num_hidden, vocab_size)
         self.softmax = nn.Softmax(dim=-1)

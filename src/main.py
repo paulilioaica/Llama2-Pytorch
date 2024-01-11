@@ -1,6 +1,6 @@
 from datasets import load_dataset
-from pretrained_tokenizer import tokenizer
-from transformer import Transformer
+from tokenizer import tokenizer
+from transformer import Llama2
 from dataset import TextDataset
 from torch.utils.data import DataLoader
 from trainer import run_trainer
@@ -9,6 +9,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--num_layers", type=int, default=2)
 parser.add_argument("--n_heads", type=int, default=8)
+parser.add_argument("--num_kv_heads", type=int, default=4)
 parser.add_argument("--seq_len", type=int, default=128)
 parser.add_argument("--num_hidden", type=int, default=128)
 parser.add_argument("--num_epochs", type=int, default=10)
@@ -21,7 +22,7 @@ args = parser.parse_args()
 
 
 
-def run(num_layers, n_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, embedding_dim, dataset_name):
+def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, embedding_dim, dataset_name):
     # add split="train[10%:20%]" to load_dataset to get a smaller dataset
     dataset_train = load_dataset(dataset_name, split='train[:5%]')
     dataset_test = load_dataset(dataset_name, split='test[:5%]') 
@@ -42,7 +43,7 @@ def run(num_layers, n_heads, seq_len, num_hidden, num_epochs, batch_size, lr, de
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
-    model = Transformer(num_layers, num_layers, num_hidden, n_heads, seq_len - 1, tokenizer.vocab_size, embedding_dim)
+    model = Llama2(num_layers, num_hidden, n_heads, num_kv_heads, seq_len - 1, tokenizer.vocab_size)
     
     results = run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr)
     return results
