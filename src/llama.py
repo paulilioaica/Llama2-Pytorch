@@ -84,6 +84,5 @@ class Llama2(nn.Module):
         output = self.rms_norm(output)
 
         output = self.linear(output)
-        output = F.softmax(output, dim=-1)
 
         return output
