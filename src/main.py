@@ -1,7 +1,6 @@
 from datasets import load_dataset
 from tokenizer import tokenizer
 from llama import Llama2
-from sheakspeare import get_data, ShakespeareDataset
 from dataset import TextDataset
 from torch.utils.data import DataLoader
 from trainer import run_trainer
@@ -18,42 +17,34 @@ parser.add_argument("--batch_size", type=int, default=32)
 parser.add_argument("--lr", type=float, default=0.001)
 parser.add_argument("--device", type=str, default="cpu")
 parser.add_argument("--dataset_name", type=str, default="ag_news")
-parser.add_argument("--sheakspeare", type=bool, default=False)
 args = parser.parse_args()
 
 
 
 def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, dataset_name):
-    if args.sheakspeare:
-        text, chars, char_to_index, index_to_char = get_data()
-        
-        dataset = ShakespeareDataset(text, char_to_index=char_to_index, sequence_len=seq_len)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    
-    else:
-        # add split="train[10%:20%]" to load_dataset to get a smaller dataset
-        dataset_train = load_dataset(dataset_name, split='train[:1%]')
-        dataset_test = load_dataset(dataset_name, split='test[:1%]') 
+    # add split="train[10%:20%]" to load_dataset to get a smaller dataset
+    dataset_train = load_dataset(dataset_name, split='train[:1%]')
+    dataset_test = load_dataset(dataset_name, split='test[:1%]') 
 
-        train_dataset = dataset_train
-        test_dataset = dataset_test
+    train_dataset = dataset_train
+    test_dataset = dataset_test
 
 
-        tokenized_train_dataset = train_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
-                                                    batched=True)
-        tokenized_test_dataset = test_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
+    tokenized_train_dataset = train_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
                                                 batched=True)
+    tokenized_test_dataset = test_dataset.map(lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True, max_length=seq_len), 
+                                              batched=True)
 
 
-        train_dataset = TextDataset(tokenized_train_dataset)
-        test_dataset = TextDataset(tokenized_test_dataset)
+    train_dataset = TextDataset(tokenized_train_dataset)
+    test_dataset = TextDataset(tokenized_test_dataset)
 
-        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
     model = Llama2(num_layers, num_hidden, n_heads, num_kv_heads, seq_len - 1, tokenizer.vocab_size)
     
-    results = run_trainer(model, dataloader, dataloader, num_epochs, device, lr)
+    results = run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr)
     return results
 
 if __name__ == "__main__":
