@@ -19,9 +19,9 @@ class KVCacheMemory():
         self.k_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden )).to(self.device)
         self.q_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden)).to(self.device)
 
-    def update(self, k, q, curr_pos):
-        self.k_cached[: , curr_pos : curr_pos + k.shape[1]] = k
-        self.q_cached[: , curr_pos : curr_pos + q.shape[1]] = q
+    def update(self, k, q):
+        self.k_cached[: , self.curr_pos : self.curr_pos + k.shape[1]] = k
+        self.q_cached[: , self.curr_pos : self.curr_pos + q.shape[1]] = q
         self.curr_pos += k.shape[1]
 
     def __call__(self):
