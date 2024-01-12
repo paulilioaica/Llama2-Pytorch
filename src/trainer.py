@@ -25,7 +25,7 @@ def run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr
             # Backward pass and optimization
             loss.backward()
             optimizer.step()
-            if i % 10 == 0:
+            if i % 100 == 0:
             # store train epoch loss
                 loss_history.append([epoch, loss.item()])
                 print(f'Epoch: {epoch}, Loss: {loss.item()}')

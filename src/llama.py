@@ -71,7 +71,6 @@ class Llama2(nn.Module):
         self.model = LlamaModel(decoder_layers_num, num_heads, num_kv_heads, seq_len, num_hidden)
         self.embedding = nn.Embedding(vocab_size, num_hidden)
         self.linear = nn.Linear(num_hidden, vocab_size)
-        self.softmax = nn.Softmax(dim=-1)
         self.rms_norm = RMSNorm(num_hidden)
 
     def forward(self, x):

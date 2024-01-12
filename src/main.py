@@ -23,8 +23,8 @@ args = parser.parse_args()
 
 def run(num_layers, n_heads, num_kv_heads, seq_len, num_hidden, num_epochs, batch_size, lr, device, dataset_name):
     # add split="train[10%:20%]" to load_dataset to get a smaller dataset
-    dataset_train = load_dataset(dataset_name, split='train[:1%]')
-    dataset_test = load_dataset(dataset_name, split='test[:1%]') 
+    dataset_train = load_dataset(dataset_name, split='train[:5%]')
+    dataset_test = load_dataset(dataset_name, split='test[:5%]') 
 
     train_dataset = dataset_train
     test_dataset = dataset_test
