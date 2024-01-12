@@ -43,3 +43,17 @@ def run_trainer(model, train_dataloader, test_dataloader, num_epochs, device, lr
     test_loss /= len(test_dataloader)
     print(f'Test Loss: {test_loss}')
     return loss_history
+
+
+def generate_text(model, start_string, char_to_index, index_to_char, device, gen_length=100, temperature=0.1, ):
+    model.eval()
+    with torch.no_grad():
+        input_text = start_string
+        for _ in range(gen_length):
+            input_tensor = torch.tensor([char_to_index[c] for c in input_text], dtype=torch.long).unsqueeze(0).to(device)
+            output = model(input_tensor)
+            output = output / temperature
+            probs = torch.softmax(output[:, -1, :], dim=-1)
+            next_char_index = torch.multinomial(probs, num_samples=1).squeeze().item()
+            input_text += index_to_char[next_char_index]
+    print(input_text)
