@@ -15,9 +15,10 @@ class KVCacheMemory():
 
     def reset_pos(self):
         self.curr_pos = 0
+        self.init_cache()
 
     def init_cache(self, batch_size = None):
-        self.batch_size = batch_size
+        # self.batch_size = batch_size
         self.k_cached = torch.zeros((1, self.seq_len, self.num_kv_heads, self.num_hidden))
         self.q_cached = torch.zeros((1, self.seq_len, self.num_kv_heads, self.num_hidden))
 
@@ -80,7 +81,7 @@ class GroupedQueryAttention(nn.Module):
             # then we need to get the cached KV        
             rope_key, rope_values = self.cache()
 
-            
+
         # bring them to the same shape as original key and values
         rope_key = rope_key.repeat((1, self.num_rep, 1, 1))
         rope_values = rope_values.repeat((1, self.num_rep, 1, 1))
