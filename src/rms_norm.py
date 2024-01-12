@@ -8,8 +8,6 @@ class RMSNorm(nn.Module):
         self.weight = nn.Parameter(torch.ones(hidden_size))
     
     def forward(self, x):
-        norm_x = torch.norm(x, dim=-1, keepdim=True)
-        
-        x_normed = x / (norm_x + self.eps)
-
-        return x_normed * self.weight
+        output = x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+        output = output * self.weight
+        return output

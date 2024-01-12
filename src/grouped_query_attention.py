@@ -9,6 +9,10 @@ class KVCacheMemory():
         self.num_heads = num_heads
         self.seq_len = seq_len
         self.num_hidden = num_hidden
+        self.curr_pos = 0
+
+    def reset_pos(self):
+        self.curr_pos = 0
 
     def init_cache(self, batch_size):
         self.batch_size = batch_size
@@ -16,11 +20,12 @@ class KVCacheMemory():
         self.q_cached = torch.zeros((batch_size, self.seq_len, self.num_heads, self.num_hidden)).to(self.device)
 
     def update(self, k, q, curr_pos):
-        self.k_cached[:self.batch_size, curr_pos : curr_pos + k.shape[1]] = k
-        self.q_cached[:self.batch_size, curr_pos : curr_pos + q.shape[1]] = q
-    
-    def __call__(self, start_pos):
-        return self.k_cached[:self.batch_size, :start_pos + self.seq_len], self.q_cached[:self.batch_size, :start_pos + self.seq_len]  
+        self.k_cached[: , curr_pos : curr_pos + k.shape[1]] = k
+        self.q_cached[: , curr_pos : curr_pos + q.shape[1]] = q
+        self.curr_pos += k.shape[1]
+
+    def __call__(self):
+        return self.k_cached[:, :self.curr_pos + self.seq_len], self.q_cached[: , :self.curr_pos + self.seq_len]  
 
         
 
@@ -64,6 +69,13 @@ class GroupedQueryAttention(nn.Module):
         rope_key = self.rotary_encodings(key) 
         rope_values = self.rotary_encodings(values)
 
+        # if evaluation, seq_len = 1, so we need to cache the KV    
+        if self.eval():
+            self.cache.update(rope_key, rope_values)
+            # then we need to get the cached KV        
+            rope_key, rope_values = self.cache()
+
+        # bring them to the same shape as original key and values
         rope_key = rope_key.repeat((1, self.num_rep, 1, 1))
         rope_values = rope_values.repeat((1, self.num_rep, 1, 1))
 
@@ -73,10 +85,13 @@ class GroupedQueryAttention(nn.Module):
         # QK_T / sqrt(dk)
         QK_T = QK_T / math.sqrt(self.d_k)
 
+        # mask
+        if mask is not None:
+            QK_T = QK_T.masked_fill(mask == 0, float("-inf"))
 
         # softmax(QK_T / sqrt(d_k)
         attention_scores = self.softmax(QK_T)
-        
+
         #dropout
         if self.train():
             attention_scores = self.dropout(attention_scores)
