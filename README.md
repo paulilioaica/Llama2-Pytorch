@@ -1,5 +1,4 @@
 ﻿# LLama2 in Pytorch
-## WIP
 
 ## Overview
 This projects implements [LLama2](https://arxiv.org/abs/2307.09288) transformer architecture for self-supervised prediction, which is at the core of LLMs. This project aims to provide a simple and efficient implementation of popular Llama model which is based on the original [transformer architecture](https://arxiv.org/abs/1706.03762) which is highly flexible and powerful, but implements few upgrades such as: [rotary embeddings](https://arxiv.org/pdf/2104.09864.pdf), [grouped query attention for a tradeoff between MHA and MQA](https://arxiv.org/abs/2305.13245v3), [SwiGLU](https://arxiv.org/abs/2002.05202v1), [RMS Norm](https://arxiv.org/abs/1910.07467) and [KV Caching](https://arxiv.org/pdf/2211.05102.pdf).
@@ -40,7 +39,7 @@ To get started with Transformer Plain, follow these steps:
 
     ```shell
     git clone https://github.com/paulilioaica/Llama2-Pytorch
-    cd Llama2-Pytorch/src/
+    cd Llama2-Pytorch/
 
     ```
 
@@ -62,7 +61,7 @@ To get started with Transformer Plain, follow these steps:
 
 ## Example run
 ```
-python main.py  --num_layers 2 --n_heads 8 --seq_len 128 --num_hidden 128 --num_epochs 10 --batch_size 32 --lr 0.001 --device cpu --embedding_dim 128 --dataset_name ag_news
+python main.py  --num_layers 2 --n_heads 8 --num_kv_heads --seq_len 128 --num_hidden 128 --num_epochs 10 --batch_size 32 --lr 0.001 --device cpu --dataset_name ag_news
 ```
 
 ## License
