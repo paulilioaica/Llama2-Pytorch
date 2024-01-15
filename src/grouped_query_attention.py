@@ -33,7 +33,7 @@ class KVCacheMemory():
         
 
 class GroupedQueryAttention(nn.Module):
-    def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len, d_k) -> None:
+    def __init__(self, num_hidden, num_heads, num_kv_heads, seq_len, d_k, dropout=0.1) -> None:
         super().__init__()
         self.num_hidden = num_hidden
         self.num_heads = num_heads
@@ -54,7 +54,7 @@ class GroupedQueryAttention(nn.Module):
         self.W_v = nn.Linear(num_hidden, num_kv_heads * num_hidden)
         self.W_o = nn.Linear(num_heads * num_hidden, num_hidden)
         self.softmax = nn.Softmax(dim=-1)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(dropout)
         self.mask = self.get_mask(self.seq_len)
     
     def get_mask(self, size):
@@ -62,38 +62,41 @@ class GroupedQueryAttention(nn.Module):
         mask = torch.triu(torch.ones(size, size, device=device), diagonal=1)  
         return mask.unsqueeze(0).unsqueeze(0)  
 
-    def forward(self, query, key, values, dropout=0.1, mask=None):
+    def forward(self, query, keys, values, mask=False):
         # Reshaping expanded to n_heads or n_kv_heads
         seq_len, num_hidden = query.shape[1], query.shape[2]
         
         query = self.W_q(query).view(-1, self.num_heads, seq_len, num_hidden)
-        key = self.W_k(key).view(-1, self.num_kv_heads, seq_len, num_hidden)
+        keys = self.W_k(keys).view(-1, self.num_kv_heads, seq_len, num_hidden)
         values = self.W_v(values).view(-1, self.num_kv_heads, seq_len, num_hidden)
 
         # shape [batch, seq_len, kv_heads, hidden]
-        rope_key = self.rotary_encodings(key) 
+        rope_keys = self.rotary_encodings(keys) 
         rope_values = self.rotary_encodings(values)
 
 
-        # if evaluation, seq_len = 1, so we need to cache the KV    
+        # if evaluation, [batch, seq_len = 1, ....], so we need to cache the KV    
         if not self.training:
-            self.cache.update(rope_key, rope_values)
-            # then we need to get the cached KV        
-            rope_key, rope_values = self.cache()
+            # in this case keys and values span the whole sequence but we cache only the last one
+            # so we have the keys and values for last token in the sequence 
+            self.cache.update(rope_keys, rope_values)
+
+            # then we need to get the whole cached keys and values        
+            rope_keys, rope_values = self.cache()
 
 
         # bring them to the same shape as original key and values
-        rope_key = rope_key.repeat((1, self.num_rep, 1, 1))
+        rope_keys = rope_keys.repeat((1, self.num_rep, 1, 1))
         rope_values = rope_values.repeat((1, self.num_rep, 1, 1))
 
-        # Q * K_T
-        QK_T = torch.matmul(query,  rope_key.mT)
+        # Q * K_T, in this case its [batch, 1, heads, seq_len] * [batch, seq_len, heads, hidden]
+        QK_T = torch.matmul(query,  rope_keys.mT)
 
         # QK_T / sqrt(dk)
         QK_T = QK_T / math.sqrt(self.d_k)
 
         # mask
-        if mask is not None:
+        if mask is not None and self.training:
             QK_T = QK_T.masked_fill(mask == 0, float("-inf"))
 
         # softmax(QK_T / sqrt(d_k)
@@ -104,6 +107,7 @@ class GroupedQueryAttention(nn.Module):
             attention_scores = self.dropout(attention_scores)
 
         output = torch.matmul(attention_scores, rope_values)  
+
         # Reshape and apply output linear layer  
         output = output.transpose(1, 2).contiguous().view(-1, seq_len, self.num_heads * num_hidden)  
         output = self.W_o(output)  
