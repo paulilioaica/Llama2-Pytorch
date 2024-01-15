@@ -19,16 +19,16 @@ class KVCacheMemory():
 
     def init_cache(self, batch_size = None):
         # self.batch_size = batch_size
-        self.k_cached = torch.zeros((1, self.seq_len, self.num_kv_heads, self.num_hidden))
-        self.q_cached = torch.zeros((1, self.seq_len, self.num_kv_heads, self.num_hidden))
+        self.k_cached = torch.zeros((1,  self.num_kv_heads, self.seq_len, self.num_hidden))
+        self.q_cached = torch.zeros((1, self.num_kv_heads, self.seq_len, self.num_hidden))
 
     def update(self, k, q):
-        self.k_cached[: , self.curr_pos : self.curr_pos + 1] = k.transpose(1, 2)
-        self.q_cached[: , self.curr_pos : self.curr_pos + 1] = q.transpose(1, 2)
+        self.k_cached[:, :, self.curr_pos : self.curr_pos + 1, :] = k
+        self.q_cached[:, :, self.curr_pos : self.curr_pos + 1, :] = q
         self.curr_pos += 1
 
     def __call__(self):
-        return self.k_cached[:, :self.curr_pos, :, :].transpose(1, 2), self.q_cached[: , :self.curr_pos, :, :].transpose(1, 2) 
+        return self.k_cached[:, :, :self.curr_pos, :], self.q_cached[:, :,  :self.curr_pos, :]
 
         
 
@@ -96,7 +96,7 @@ class GroupedQueryAttention(nn.Module):
         QK_T = QK_T / math.sqrt(self.d_k)
 
         # mask
-        if mask is not None and self.training:
+        if mask and self.training:
             QK_T = QK_T.masked_fill(mask == 0, float("-inf"))
 
         # softmax(QK_T / sqrt(d_k)
