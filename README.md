@@ -39,7 +39,7 @@ To get started with Transformer Plain, follow these steps:
 
     ```shell
     git clone https://github.com/paulilioaica/Llama2-Pytorch
-    cd Llama2-Pytorch/src/
+    cd Llama2-Pytorch/
 
     ```
 
