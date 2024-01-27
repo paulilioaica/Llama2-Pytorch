@@ -26,9 +26,6 @@ For more details on the transformer architecture, refer to the original paper: [
 
 ## Features
 
-✨ Easy-to-use: The project provides a straightforward setup and training loop for self-supervised prediction.
-
-
 🔀 Self-Supervised Prediction: The training loop is designed to support self-supervised prediction, enabling the model to learn from unlabeled data.
 
 ## Setup
@@ -50,6 +47,33 @@ To get started with Transformer Plain, follow these steps:
     ```
 
 ## Usage
+
+```python
+from llama import LLama2
+
+decoder_layers_num = 2
+num_hidden = 16
+num_heads = 4
+num_kv_heads = 2
+seq_len = 256
+vocab_size = 100
+
+model = Llama2(decoder_layers_num, num_hidden, num_heads, num_kv_heads, seq_len, vocab_size)
+
+# batch_size, seq_len, 1 (vocab_index)
+x = torch.randint(0, vocab_size, (1, seq_len))
+
+output = model(x)
+print(output.shape)
+
+```
+```terminal
+torch.Size([1, 256, 100])
+```
+
+
+OR 
+
 
 1. Dataset: Make sure you have a dataset suitable for self-supervised prediction from Huggingface (or use the AG-NEWS one). Simply pass the `dataset_name` for training on your dataset of choice.
 
