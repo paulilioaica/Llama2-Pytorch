@@ -97,7 +97,7 @@ class GroupedQueryAttention(nn.Module):
 
         # mask
         if mask and self.training:
-            QK_T = QK_T.masked_fill(mask == 0, float("-inf"))
+            QK_T = QK_T.masked_fill(mask == 1, float("-inf"))
 
         # softmax(QK_T / sqrt(d_k)
         attention_scores = self.softmax(QK_T)
