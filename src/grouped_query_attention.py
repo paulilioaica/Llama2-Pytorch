@@ -59,7 +59,7 @@ class GroupedQueryAttention(nn.Module):
     
     def get_mask(self, size):
         device = next(self.parameters()).device
-        mask = torch.triu(torch.ones(size, size, device=device), diagonal=1)  
+        mask = torch.tril(torch.ones(size, size, device=device), diagonal=1)  
         return mask.unsqueeze(0).unsqueeze(0)  
 
     def forward(self, query, keys, values, mask=False):
@@ -97,7 +97,7 @@ class GroupedQueryAttention(nn.Module):
 
         # mask
         if mask and self.training:
-            QK_T = QK_T.masked_fill(mask == 1, float("-inf"))
+            QK_T = QK_T.masked_fill(mask == 0, float("-inf"))
 
         # softmax(QK_T / sqrt(d_k)
         attention_scores = self.softmax(QK_T)
