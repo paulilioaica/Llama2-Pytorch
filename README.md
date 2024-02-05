@@ -1,13 +1,13 @@
 ﻿# LLama2 in Pytorch
 
 ## Overview
-This projects implements [LLama2](https://arxiv.org/abs/2307.09288) transformer architecture for self-supervised prediction, which is at the core of LLMs. It aims to provide a simple and efficient implementation of popular Llama model which is based on the original [transformer architecture](https://arxiv.org/abs/1706.03762) which is highly flexible and powerful, but implements few upgrades such as: [rotary embeddings](https://arxiv.org/pdf/2104.09864.pdf), [grouped query attention for a tradeoff between MHA and MQA](https://arxiv.org/abs/2305.13245v3), [SwiGLU](https://arxiv.org/abs/2002.05202v1), [RMS Norm](https://arxiv.org/abs/1910.07467) and [KV Caching](https://arxiv.org/pdf/2211.05102.pdf).
+This projects implements [LLama2](https://arxiv.org/abs/2307.09288) transformer decoder architecture for self-supervised prediction, which is at the core of LLMs. It aims to provide a simple and efficient implementation of popular Llama model which is based on the original [transformer architecture](https://arxiv.org/abs/1706.03762) which is highly flexible and powerful, but implements few upgrades such as: [rotary embeddings](https://arxiv.org/pdf/2104.09864.pdf), [grouped query attention for a tradeoff between MHA and MQA](https://arxiv.org/abs/2305.13245v3), [SwiGLU](https://arxiv.org/abs/2002.05202v1), [RMS Norm](https://arxiv.org/abs/1910.07467) and [KV Caching](https://arxiv.org/pdf/2211.05102.pdf).
 
 ## Llama2 Architecture
 
 ![LLaMa2 ](https://images.datacamp.com/image/upload/v1700044736/image9_02d9fcb498.png)
 
- The Llama architecture consists of the Transformer Decoder architecture, coupled with few upgrades such as :
+ The Llama2 architecture consists of the Transformer Decoder architecture, coupled with few upgrades such as :
  * Rotary Embeddings
  * SwiGLU
  * Grouped Query Attention
