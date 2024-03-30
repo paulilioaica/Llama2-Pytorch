@@ -6,7 +6,7 @@ import math
 from swiglu import SwiGLU
 from grouped_query_attention import GroupedQueryAttention
 from rms_norm import RMSNorm
-# Feed forward definition
+
     
 class FeedForward(nn.Module):
     def __init__(self, num_hidden, num_ffn_hidden) -> None:
@@ -24,7 +24,6 @@ class FeedForward(nn.Module):
         return x
 
 
-# Transformer definition
 
 class LlamaModel(nn.Module):
     def __init__(self, num_layers, n_heads, num_kv_heads, seq_len, num_hidden) -> None:
